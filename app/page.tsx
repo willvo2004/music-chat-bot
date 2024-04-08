@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import { fetchAIResponse } from "./lib/data";
 import { SideBarNav } from "./ui/SideBarNav";
+import { PromptText } from "./ui/PromptText";
 
 export default function Home() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -58,6 +59,7 @@ export default function Home() {
           </div>
         </form>
       </div>
+      <PromptText />
     </main>
     </div>
   );
