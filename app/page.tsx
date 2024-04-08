@@ -2,21 +2,38 @@
 
 import logo from "../public/logo.jpg";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { fetchAIResponse } from "./lib/data";
 import { SideBarNav } from "./ui/SideBarNav";
 import { PromptText } from "./ui/PromptText";
+import { text } from "stream/consumers";
 
 export default function Home() {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [prompt, setPrompt] = useState<{ user: string; ai: string; }[]>([]);
 
-  const handleKeyPress = async (event: React.KeyboardEvent) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      if (textareaRef.current) {
-        const ai = await fetchAIResponse(textareaRef.current.value);
-        console.log(ai);
-        (textareaRef.current as HTMLTextAreaElement).value = "";
+    const handleKeyPress = async (event: React.KeyboardEvent) => {
+       if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        const inputText = textareaRef.current?.value.trim(); // Trim input text
+        if (!inputText) return; // Return if input is empty
+        if (textareaRef.current) {
+        textareaRef.current.value = ""; // Clear the textarea
+        setPrompt(prevPrompt => [
+            ...prevPrompt,
+            { user: inputText, ai: "Fetching response..." } // Add user input to state
+        ]);
+        try {
+            const aiResponse = await fetchAIResponse(inputText);
+            setPrompt(prevPrompt => prevPrompt.map((item, index) =>
+                index === prevPrompt.length - 1 ? { ...item, ai: aiResponse } : item
+            ));
+        } catch (error) {
+            console.error("Error fetching AI response:", error);
+            setPrompt(prevPrompt => prevPrompt.map((item, index) =>
+                index === prevPrompt.length - 1 ? { ...item, ai: "Error fetching response" } : item
+            ));
+        }
       }
     }
 }
@@ -59,7 +76,7 @@ export default function Home() {
           </div>
         </form>
       </div>
-      <PromptText />
+      <PromptText userPrompt={prompt}/>
     </main>
     </div>
   );
