@@ -28,6 +28,7 @@ export default function Home() {
             setPrompt(prevPrompt => prevPrompt.map((item, index) =>
                 index === prevPrompt.length - 1 ? { ...item, ai: aiResponse } : item
             ));
+            console.log(aiResponse);
         } catch (error) {
             console.error("Error fetching AI response:", error);
             setPrompt(prevPrompt => prevPrompt.map((item, index) =>
