@@ -12,7 +12,7 @@ export const SideBarNav = () => {
                             
                         </div>
                         <div className="flex flex-col pt-2 empty:hidden dark:border-white/20">
-                            <Link href="/" className="group flex gap-2 p-2.5">Login with Spotify</Link>
+                            <Link href="/api/login" className="group flex gap-2 p-2.5">Login with Spotify</Link>
                         </div>
                     </nav>
                 </div>
