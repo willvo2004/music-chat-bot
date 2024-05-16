@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import querystring from "querystring";
 import { saveUser } from "../../app/lib/data";
 import axios from "axios";
+import { serialize } from "cookie";
+import { createSession } from "../../app/lib/session";
 
 const client_id = process.env.SPOTIFY_CLIENT_KEY;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET_KEY;
@@ -50,7 +52,21 @@ export default async function Callback(
     })
   ).data;
 
-  saveUser(response.email, response.display_name, refresh_token);
+  saveUser(
+    response.email,
+    response.display_name,
+    response.images[0].url,
+    refresh_token,
+  );
 
-  res.redirect("http://localhost:3000/");
+  const cookie = serialize("data-access", access_token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7,
+    sameSite: "lax",
+    path: "/",
+  });
+
+  res.setHeader("Set-Cookie", cookie);
+  res.redirect("/");
 }

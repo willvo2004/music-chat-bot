@@ -12,6 +12,7 @@ model User {
   email         String         @unique
   name          String
   refreshToken  String
+  icon          String         @default("N/A")
   conversations Conversation[]
 }
 
