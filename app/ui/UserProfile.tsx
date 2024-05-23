@@ -1,12 +1,25 @@
 "use client";
-
-import { useContext } from "react";
-import { AuthContext } from "../ui/authContext";
-import { getUser, logout } from "../lib/data";
+import { logout, isLoggedIn } from "../lib/data";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import UserData from "../components/UserData";
 
 const UserProfile = () => {
-  const { isLoggedIn } = useContext(AuthContext);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    function checkLoginStatus() {
+      isLoggedIn()
+        .then((result) => {
+          setLoggedIn(result);
+        })
+        .catch((error) => {
+          console.error("Error checking login status:", error);
+        });
+    }
+    checkLoginStatus();
+  }, []);
+
   const handleLogout = () => {
     logout();
     location.reload();
@@ -14,8 +27,9 @@ const UserProfile = () => {
 
   return (
     <div>
-      {isLoggedIn ? (
+      {loggedIn ? (
         <div className="p-4">
+          <UserData />
           <button onClick={handleLogout}>Logout</button>
         </div>
       ) : (

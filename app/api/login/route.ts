@@ -1,22 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { webpack } from "next/dist/compiled/webpack/webpack";
 import querystring from "querystring";
+import { redirect } from "next/navigation";
 
-const client_id = process.env.SPOTIFY_CLIENT_KEY;
-const redirect_uri = "http://localhost:3000/api/callback";
-
-type ResponseData = {
-  message: string;
-};
-
-export default function Login(
-  req: NextApiRequest,
-  res: NextApiResponse<ResponseData>,
-) {
+export async function GET() {
+  const client_id = process.env.SPOTIFY_CLIENT_KEY;
+  const redirect_uri = "http://localhost:3000/api/callback";
   const state = generateRandomString(16);
   const scope = "user-read-private user-read-email";
 
-  res.redirect(
+  redirect(
     "https://accounts.spotify.com/authorize?" +
       querystring.stringify({
         response_type: "code",

@@ -2,9 +2,8 @@
 
 import OpenAI from "openai";
 import { PrismaClient } from "@prisma/client";
-import axios from "axios";
 import { cookies } from "next/headers";
-import { encrypt } from "./session";
+import { decrypt } from "./session";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const prisma = new PrismaClient();
 
@@ -72,18 +71,34 @@ export async function saveUser(
   }
 }
 
-export async function getUser(access_token: string) {
-  const response = (
-    await axios.get("https://api.spotify.com/v1/me", {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    })
-  ).data;
-
-  return response;
-}
-
 export async function logout() {
   cookies().delete("data-access");
+  cookies().delete("session");
+}
+
+export async function isLoggedIn() {
+  const session = cookies().get("data-access");
+  if (session) {
+    return true;
+  }
+  return false;
+}
+
+export async function fetchUser() {
+  try {
+    const session = cookies().get("session");
+    if (session) {
+      const { userId } = await decrypt(session.value);
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
+      return user;
+    } else {
+      console.log("error fetching user");
+    }
+  } catch (error) {
+    console.log("error fetching user: ", error);
+  }
 }
